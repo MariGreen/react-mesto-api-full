@@ -1,4 +1,4 @@
-import isEmail from 'validator/lib/isEmail';
+const validator = require('validator');
 
 const bcrypt = require('bcryptjs');
 
@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 2,
     maxlength: 30,
-    default: 'Мистер Введи-Свое-Имя',
+    default: 'Господин Введи-Свое-Имя',
   },
   about: {
     type: String,
@@ -23,9 +23,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator(v) {
+      validator(link) {
         // eslint-disable-next-line no-useless-escape
-        return /^(https?:\/\/)?(w{3}\.)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?\#?$/.test(v);
+        // return /^(https?:\/\/)?(w{3}\.)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?\#?$/.test(v);
+        return validator.isURL(link);
       },
       message: 'Ссылка не валидна',
     },
@@ -36,8 +37,8 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
     validate: {
-      validator(v) {
-        return isEmail(v);
+      validator(email) {
+        return validator.isEmail(email);
       },
       message: 'Некорректный email',
     },
@@ -46,13 +47,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 8,
+    select: false,
   },
 },
 
 { versionKey: false });
 
 userSchema.statics.findUserByCredentials = function findUserByCredentials(email, password) {
-  return this.findOne({ email })
+  return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         return Promise.reject(new Error('Неправильные почта или пароль'));

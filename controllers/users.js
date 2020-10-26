@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
+// const { NODE_ENV, JWT_SECRET } = process.env;
 
 const getAllUsers = (req, res) => User.find({})
   .then((data) => {
@@ -41,18 +41,19 @@ const getUserById = (req, res) => User.findById(req.params._id)
   });
 
 const createUser = (req, res) => {
-  bcrypt.hash(req.body.password, 10)
-    .then((hash) => User.create({
-      email: req.body.email,
-      password: hash,
-    }))
-    .then((user) => res.status(200).send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(500).send({ message: 'Ошибка сервера' });
-      }
+  const { password, email } = req.body;
+
+  bcrypt.hash(password, 10)
+    .then((hashPassword) => {
+      User.create({ password: hashPassword, email })
+        .then((user) => res.status(200).send({ _id: user._id }))
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            res.status(400).send({ message: err });
+          } else {
+            res.status(500).send({ message: 'Ошибка сервера' });
+          }
+        });
     });
 };
 
@@ -62,9 +63,15 @@ const login = (req, res) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       // создаем токен
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, 'DDDDDD', { expiresIn: '7d' });
       // вернём токен
-      res.send({ token });
+      // res.cookie('jwt', token, {
+      //   maxAge: 3600000 * 24 * 7,
+      //   httpOnly: true,
+      //   sameSite: true,
+      // })
+      // .end();
+      res.status(200).send({ token });
     })
     .catch((err) => {
     // ошибка аутентификации
