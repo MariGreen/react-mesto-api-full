@@ -63,7 +63,7 @@ const login = (req, res) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       // создаем токен
-      const token = jwt.sign({ _id: user._id }, 'DDDDDD', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       // вернём токен
       // res.cookie('jwt', token, {
       //   maxAge: 3600000 * 24 * 7,
@@ -80,6 +80,30 @@ const login = (req, res) => {
     });
 };
 
+const updateUser = (req, res, user) => { // убрать юзера
+  const { name, about } = req.body;
+  User.findOneAndUpdate(user._id, { name, about }, {
+    new: true, // обработчик then получит на вход обновлённую запись
+  })
+    .then(() => res.status(200).send(user))
+    .catch((err) => {
+      res.status(404)
+        .send({ message: err.message });
+    });
+};
+
+const updateUserAvatar = (req, res) => {
+  const { avatar } = req.body;
+  User.findOneAndUpdate(avatar, {
+    new: true, // обработчик then получит на вход обновлённую запись
+  })
+    .then((user) => res.status(200).send(user))// убрать юзера
+    .catch((err) => {
+      res.status(404)
+        .send({ message: err.message });
+    });
+};
+
 module.exports = {
-  getAllUsers, getUserById, createUser, login,
+  getAllUsers, getUserById, createUser, updateUser, updateUserAvatar, login,
 };
