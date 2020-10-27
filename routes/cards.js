@@ -7,6 +7,9 @@ router.post('/cards', createCard);
 
 router.delete('/cards', deleteCard);
 
+// PUT /cards/:cardId/likes
+// DELETE /cards/:cardId/likes
+
 module.exports = {
   router,
 };

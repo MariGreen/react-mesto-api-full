@@ -82,7 +82,8 @@ const login = (req, res) => {
 
 const updateUser = (req, res, user) => { // убрать юзера
   const { name, about } = req.body;
-  User.findOneAndUpdate(user._id, { name, about }, {
+
+  User.findOneAndUpdate({ name, about }, {
     new: true, // обработчик then получит на вход обновлённую запись
   })
     .then(() => res.status(200).send(user))
