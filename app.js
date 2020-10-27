@@ -1,18 +1,16 @@
 const express = require('express');
-require('dotenv').config();
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const mongoose = require('mongoose');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-const path = require('path');
-const cors = require('cors');
-const { createUser, login } = require('./controllers/users');
-const auth = require('./middlewares/auth');
 
 const app = express();
+const path = require('path');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
-app.use(cookieParser());
+// const auth = require('./middlewares/auth');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const cors = require('cors');
+const { createUser, login } = require('./controllers/users');
+require('dotenv').config();
 
 app.use(helmet());
 
@@ -40,17 +38,11 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(cors({
   origin: 'http://localhost:3000',
 }));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, 'public')));
-
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '5f6cd38ab561001348aeabc0',
-//   };
-//   next();
-// });
 
 app.post('/signup', createUser);
 app.post('/signin', login);
@@ -78,6 +70,14 @@ app.get('*', (req, res) => {
 //         ? 'На сервере произошла ошибка'
 //         : message,
 //     });
+//   next();
+// });
+
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', 'localhost:3000');
+//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+//   res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+
 //   next();
 // });
 
