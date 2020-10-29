@@ -5,10 +5,10 @@ const path = require('path');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
-// const auth = require('./middlewares/auth');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const cors = require('cors');
+const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 require('dotenv').config();
 
@@ -47,7 +47,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.post('/signup', createUser);
 app.post('/signin', login);
 
-// app.use(auth);
+app.use(auth);
+// app.get('/users', getAllUsers);
+// app.patch('/users/me', updateUser);
+// app.patch('/users/me/avatar', updateUserAvatar);
 app.use(userRouter);
 // app.use('/', auth, cardRouter);
 app.use(cardRouter);
