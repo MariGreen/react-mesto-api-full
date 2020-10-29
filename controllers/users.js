@@ -1,10 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const ConflictError = require('../errors/ConflictError.js');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 const SALT_ROUNDS = 10;
-// const JWT_SECRET = 'ooo!';
 
 const getAllUsers = (req, res) => User.find({})
   .then((data) => {
@@ -42,24 +42,7 @@ const getUserById = (req, res) => User.findById(req.params._id)
       .send({ message: `Внутренняя ошибка сервера ${err}` });
   });
 
-// const createUser1 = (req, res) => {
-//   const { password, email } = req.body;
-
-//   bcrypt.hash(password, SALT_ROUNDS)
-//     .then((hashPassword) => {
-//       User.create({ password: hashPassword, email })
-//         .then((user) => res.status(200).send({ _id: user._id }))
-//         .catch((err) => {
-//           if (err.name === 'ValidationError') {
-//             res.status(400).send({ message: err });
-//           } else {
-//             res.status(500).send({ message: 'Ошибка сервера' });
-//           }
-//         });
-//     });
-// };
-
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { password, email } = req.body;
   if (!(email && password)) {
     return res.status(400).send({ message: 'Почта и пароль нужны оба' });
@@ -71,7 +54,7 @@ const createUser = (req, res) => {
     return User.findOne({ email })
       .then((usr) => {
         if (usr) {
-          return res.status(409).send({ message: 'Такой пользователь уже существует' });
+          return next(new ConflictError('Пользователь с таким email уже есть'));
         }
         return User.create(({ email, password: hash }))
           .then((user) => res.status(200).send({ message: `Пользователь ${user.email} успешно создан. Id: ${user._id}` }))
@@ -80,29 +63,6 @@ const createUser = (req, res) => {
       .catch(() => res.status(500).send({ message: 'Не удалось проверить уникальность пользователя' }));
   });
 };
-
-// const login1 = (req, res) => {
-//   const { email, password } = req.body;
-
-//   return User.findUserByCredentials(email, password)
-//     .then((user) => {
-//       // создаем токен
-//       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-//       // вернём токен
-//       // res.cookie('jwt', token, {
-//       //   maxAge: 3600000 * 24 * 7,
-//       //   httpOnly: true,
-//       //   sameSite: true,
-//       // })
-//       // .end();
-//       res.status(200).send({ token });
-//     })
-//     .catch((err) => {
-//     // ошибка аутентификации
-//       res.status(401)
-//         .send({ message: err.message });
-//     });
-// };
 
 const login = (req, res) => {
   const { email, password } = req.body;
@@ -121,29 +81,6 @@ const login = (req, res) => {
     })
     .catch(() => res.status(500).send({ message: 'Не удалось найти пользователя' }));
 };
-
-// const login = (req, res) => {
-//   const { email, password } = req.body;
-//   if (!(email && password)) {
-//     return res.status(400).send({ message: 'Почта и пароль нужны оба' });
-//   }
-//   return User.findUserByCredentials({ email })
-//     .then(async (user) => {
-//       if (!user) {
-//         return res.status(401).send({ message: 'Такого пользователя не существует' });
-//       }
-
-//       const isPasswordMatch = await bcrypt.compare(password, user.password);
-
-//       if (!isPasswordMatch) {
-//         return res.status(401).send({ message: 'Не удалось войти' });
-//       }
-//       const token = jwt.sign({ _id: user._id }, JWT_SECRET);
-
-//       return res.status(200).send({ message: `Мы вас нашли, ваш токен — ${token}` });
-//     })
-//     .catch(() => res.status(500).send({ message: 'Не удалось найти пользователя' }));
-// };
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;

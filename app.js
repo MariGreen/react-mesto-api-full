@@ -61,20 +61,20 @@ app.get('*', (req, res) => {
     .send({ message: 'Запрашиваемый ресурс не найден' });
 });
 
-// app.use((err, req, res, next) => {
-//   // если у ошибки нет статуса, выставляем 500
-//   const { statusCode = 500, message } = err;
+app.use((err, req, res, next) => {
+  // если у ошибки нет статуса, выставляем 500
+  const { statusCode = 500, message } = err;
 
-//   res
-//     .status(statusCode)
-//     .send({
-//       // проверяем статус и выставляем сообщение в зависимости от него
-//       message: statusCode === 500
-//         ? 'На сервере произошла ошибка'
-//         : message,
-//     });
-//   next();
-// });
+  res
+    .status(statusCode)
+    .send({
+      // проверяем статус и выставляем сообщение в зависимости от него
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
+  next();
+});
 
 // app.use((req, res, next) => {
 //   res.header('Access-Control-Allow-Origin', 'localhost:3000');
