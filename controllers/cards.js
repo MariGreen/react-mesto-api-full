@@ -1,24 +1,16 @@
 const Card = require('../models/card');
+const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/NotFoundError');
 
-const getAllCards = (req, res) => Card.find({})
+const getAllCards = (req, res, next) => Card.find({})
   .then((data) => {
-    if (!data) {
-      res
-        .status(404)
-        .send({ message: 'Запрашиваемый ресурс не найден' });
-      return;
-    }
     res
       .status(200)
       .send(data);
   })
-  .catch(() => {
-    res
-      .status(500)
-      .send({ message: 'Внутренняя ошибка сервера' });
-  });
+  .catch(next);
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
@@ -26,28 +18,28 @@ const createCard = (req, res) => {
     name, link, owner,
   })
     .then((card) => res.status(200).send({ data: card }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(500).send({ message: 'Ошибка сервера' });
-      }
-    });
+    .catch(next);
 };
 
-const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.body)
+const deleteCard = (req, res, next) => {
+  Card.findById(req.body)
     .orFail(new Error('NoCard'))
-    .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.message === 'NoCard') {
-        res.status(404).send({ message: 'Карточки нет в базе' });
-      } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(500).send({ message: 'Ошибка сервера' });
+        throw new NotFoundError('Карточки нет в базе');
       }
-    });
+    })
+    .then((card) => {
+      if (card.owner === req.user._id) {
+        Card.findOneAndDelete({ _id: card._id })
+          .then(() => {
+            res.status(200).send({ data: card });
+          });
+      } else {
+        throw new ForbiddenError('Можно удалить только свой контент');
+      }
+    })
+    .catch(next);
 };
 
 module.exports = {
