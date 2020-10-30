@@ -40,9 +40,15 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-app.use(cors({
-  origin: 'http://localhost:3000',
-}));
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json');
+  next();
+});
+
+app.use(cors());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -55,8 +61,8 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.post('/signup', validateUser, createUser);
-app.post('/signin', validateLogin, login);
+app.post('/api/signup', validateUser, createUser);
+app.post('/api/signin', validateLogin, login);
 
 app.use(auth);
 app.use(userRouter);
@@ -82,14 +88,6 @@ app.use((err, req, res, next) => {
     });
   next();
 });
-
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', 'localhost:3000');
-//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-//   res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
-
-//   next();
-// });
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
