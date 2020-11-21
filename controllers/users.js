@@ -3,9 +3,11 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
+const { JWT_SECRET, SALT_ROUNDS } = require('../middlewares/configs');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
-const SALT_ROUNDS = 10;
+// const { JWT_SECRET } = process.env;
+// // const JWT_SECRET = '2a1e5f1bdda397772d97265e726a851feb5f59498a5fc03ca904f7f42b9da95b';
+// const SALT_ROUNDS = 10;
 
 const getAllUsers = (req, res, next) => User.find({})
   .then((data) => {
@@ -47,9 +49,9 @@ const login = (req, res, next) => {
         throw new NotFoundError('Такой пользователь не найден');
       }
 
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'JWT_SECRET', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
 
-      return res.status(200).send({ message: `Мы вас нашли, ваш токен — ${token}` });
+      return res.status(200).send({ token });
     })
     .catch(next);
 };
