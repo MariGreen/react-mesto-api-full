@@ -33,7 +33,7 @@ const createUser = (req, res, next) => {
           return next(new ConflictError('Пользователь с таким email уже есть'));
         }
         return User.create(({ email, password: hash }))
-          .then((user) => res.status(200).send({ message: `Пользователь ${user.email} успешно создан. Id: ${user._id}` }));
+          .then((user) => res.status(201).send({ message: `Пользователь ${user.email} успешно создан. Id: ${user._id}` }));
       })
       .catch(next);
   });
@@ -43,13 +43,16 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
+      console.log(`${user}user`);
       if (!user) {
         throw new NotFoundError('Такой пользователь не найден');
       }
 
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'JWT_SECRET', { expiresIn: '7d' });
+      console.log(`${token}token`);
+      console.log(`${res}res`);
 
-      return res.status(200).send({ message: `Мы вас нашли, ваш токен — ${token}` });
+      return res.status(200).send({ token });
     })
     .catch(next);
 };

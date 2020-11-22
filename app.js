@@ -59,12 +59,12 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.post('/api/signup', validateUser, createUser);
-app.post('/api/signin', validateLogin, login);
+app.post('/signup', validateUser, createUser);
+app.post('/signin', validateLogin, login);
 
-app.use(auth);
-app.use(userRouter);
-app.use(cardRouter);
+// app.use(auth);
+app.use('/', auth, userRouter);
+app.use('/', auth, cardRouter);
 
 app.get('*', () => {
   throw new NotFoundError('Запрашиваемый ресурс не найден');
