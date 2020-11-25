@@ -39,7 +39,7 @@ const validateUserUpdate = celebrate({
 
 const validateUserAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().custom(linkValidation).required(),
+    avatar: Joi.string().required(),
   }),
 });
 

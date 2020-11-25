@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 const SALT_ROUNDS = 10;
@@ -20,12 +21,37 @@ const getUserById = (req, res, next) => User.findById(req.params._id)
   .then((user) => res.send({ data: user }))
   .catch(next);
 
+// const getUserByToken = (req, res, next) => {
+//   console.log(req.headers._id);
+//   User.findById(req.headers._id)
+//     .orFail(() => new NotFoundError('Такого пользователя не существует'))
+//     .then((user) => res.send({ data: user }))
+//     .catch(next);
+// };
+
+const getUserByToken = (req, res, next) => {
+  const token = req.headers.authorization.replace('Bearer ', '');
+
+  let payload;
+  try {
+    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'JWT_SECRET');
+  } catch (err) {
+    throw new UnauthorizedError('Необходима авторизация');
+  }
+  req.user = payload;
+
+  User.findById(req.user)
+    .orFail(() => new NotFoundError('Такого пользователя не существует'))
+    .then((user) => res.send({ data: user }))
+    .catch(next);
+};
+
 const createUser = (req, res, next) => {
   const { password, email } = req.body;
 
   return bcrypt.hash(password, SALT_ROUNDS, (error, hash) => {
     if (error) {
-      return res.status(500).send('Не удалось создать пользователя');
+      return new Error('Не удалось создать пользователя');
     }
     return User.findOne({ email })
       .then((usr) => {
@@ -43,14 +69,11 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      console.log(`${user}user`);
       if (!user) {
         throw new NotFoundError('Такой пользователь не найден');
       }
 
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'JWT_SECRET', { expiresIn: '7d' });
-      console.log(`${token}token`);
-      console.log(`${res}res`);
 
       return res.status(200).send({ token });
     })
@@ -68,7 +91,6 @@ const updateUser = (req, res, next) => {
 
 const updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
-
   User.findByIdAndUpdate(req.user._id, { avatar }, {
     new: true,
   })
@@ -77,5 +99,5 @@ const updateUserAvatar = (req, res, next) => {
 };
 
 module.exports = {
-  getAllUsers, getUserById, createUser, updateUser, updateUserAvatar, login,
+  getAllUsers, getUserById, createUser, updateUser, updateUserAvatar, login, getUserByToken,
 };

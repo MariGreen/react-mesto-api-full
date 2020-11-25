@@ -4,13 +4,15 @@ const { validateId, validateUserUpdate, validateUserAvatar } = require('../middl
 const {
   getAllUsers,
   getUserById,
-  updateUser, updateUserAvatar,
+  updateUser, updateUserAvatar, getUserByToken,
 
 } = require('../controllers/users');
 
 router.get('/users/:_id', validateId, getUserById);
 
 router.get('/users', getAllUsers);
+
+router.get('/me', getUserByToken);
 
 router.patch('/users/me', validateUserUpdate, updateUser);
 
