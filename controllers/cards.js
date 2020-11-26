@@ -10,6 +10,13 @@ const getAllCards = (req, res, next) => Card.find({})
   })
   .catch(next);
 
+const getCard = (req, res, next) => {
+  Card.findById(req.params._id)
+    .orFail(() => new NotFoundError('Карточки нет в базе'))
+    .then((card) => res.send({ data: card }))
+    .catch(next);
+};
+
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
@@ -30,7 +37,7 @@ const deleteCard = (req, res, next) => {
       }
     })
     .then((card) => {
-      if (card.owner === req.user._id) {
+      if (card.owner.toString() === req.user._id.toString()) {
         Card.findOneAndDelete({ _id: card._id })
           .then(() => {
             res.status(200).send({ data: card });
@@ -52,24 +59,48 @@ const likeCard = (req, res, next) => {
         throw new NotFoundError('Карточки с таким id нет в базе');
       }
     })
-    .then((card) => res.send(card.likes))
+    .then((card) => res.send(card))
     .catch(next);
 };
 
 const dislikeCard = (req, res, next) => {
-  Card.findByIdAndUpdate({ _id: req.params._id },
-    { $pull: { likes: req.user._id } }, // убрать _id, если есть
-    { new: true }
-      .orFail(new Error('NoCard'))
-      .catch((err) => {
-        if (err.message === 'NoCard') {
-          throw new NotFoundError('Карточки с таким id нет в базе');
-        }
-      })
-      .then((card) => res.send(card))
-      .catch(next));
+  Card.findById({ _id: req.params._id })
+  // убрать _id, если есть
+    .then(Card.updateOne({ _id: req.params }, { $pull: { likes: req.user._id } },
+      { new: true })
+      // .orFail(new Error('NoCard'))
+      .catch((err) => console.log(err)
+      // {
+      //   if (err.message === 'NoCard') {
+      //     throw new NotFoundError('Dislike — однократное событие');
+      //   }
+      // }
+      ))
+    .then((card) => res.send(card))
+    .catch(next);
 };
 
+// const hearts = (req, res, next) => {
+//   Card.findById(req.params._id)
+//     .then((card) => {
+//       const userId = req.params._id;
+//       console.log(typeof userId);
+//       if (card.likes.includes(userId)) {
+//         console.log(card.likes);
+//         Card.updateOne({ _id: req.params }, { $pull: { likes: req.user._id } },
+//           { new: true });
+//       } else if {
+//         Card.findByIdAndUpdate({ _id: req.params._id },
+//           { $addToSet: { likes: req.user._id } },
+//           { new: true });
+//       } else{
+
+//       }
+//     })
+//     .then((card) => res.send(card))
+//     .catch(next);
+// };
+
 module.exports = {
-  getAllCards, createCard, deleteCard, likeCard, dislikeCard,
+  getAllCards, createCard, getCard, deleteCard, likeCard, dislikeCard,
 };
