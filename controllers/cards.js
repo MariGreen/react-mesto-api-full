@@ -68,14 +68,7 @@ const dislikeCard = (req, res, next) => {
   // убрать _id, если есть
     .then(Card.updateOne({ _id: req.params }, { $pull: { likes: req.user._id } },
       { new: true })
-      // .orFail(new Error('NoCard'))
-      .catch((err) => console.log(err)
-      // {
-      //   if (err.message === 'NoCard') {
-      //     throw new NotFoundError('Dislike — однократное событие');
-      //   }
-      // }
-      ))
+      .catch((err) => console.log(err)))
     .then((card) => res.send(card))
     .catch(next);
 };

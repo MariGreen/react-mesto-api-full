@@ -9,7 +9,7 @@ router.get('/cards', getAllCards);
 
 router.get('/cards/:_id', getCard);
 
-router.post('/cards', createCard);
+router.post('/cards', validateCard, createCard);
 
 router.delete('/cards', validateId, deleteCard);
 

@@ -6,21 +6,21 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    required: [true, 'Имя нужно'],
     minlength: 2,
     maxlength: 30,
     default: 'Господин Введи-Свое-Имя',
   },
   about: {
     type: String,
-    required: true,
+    required: [true, 'Поле не должно быть пустым'],
     minlength: 2,
     maxlength: 30,
     default: 'Пара слов о себе',
   },
   avatar: {
     type: String,
-    required: true,
+    required: [true, 'Ссылка должна быть'],
     validate: {
       validator(link) {
         // eslint-disable-next-line no-useless-escape
@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
+    required: [true, 'Почта нужна'],
     unique: true,
     validate: {
       validator(email) {
@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: [true, 'Без пароля никак'],
     minlength: 8,
     select: false,
   },
