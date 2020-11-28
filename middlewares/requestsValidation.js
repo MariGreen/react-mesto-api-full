@@ -1,29 +1,9 @@
-const { celebrate, Joi, CelebrateError } = require('celebrate');
-const validator = require('validator');
-
-// const linkValidation = (value) => {
-//   if (!validator.isURL(value)) {
-//     throw new CelebrateError('Некорректная ссылка');
-//   }
-// };
-
-// const subSchema = Joi.object().required().keys({
-//   title: Joi.string().required(),
-//   link: Joi.string().required(),
-//   order: Joi.number().integer().required(),
-// });
-
-// const schema = Joi.object().keys({
-//   content: Joi.object().pattern(/^[\w\d]+$/, subSchema),
-//   .
-//   .
-//   .
-// });
+const { celebrate, Joi } = require('celebrate');
 
 const validateUser = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().alphanum().required().min(8),
     // eslint-disable-next-line no-useless-escape
     avatar: Joi.string().regex(/^(https?:\/\/)?(w{3}\.)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?\#?$/),
     name: Joi.string().min(2).max(30),
@@ -34,7 +14,7 @@ const validateUser = celebrate({
 const validateLogin = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required().alphanum().min(8),
   }),
 });
 
@@ -64,13 +44,6 @@ const validateCard = celebrate({
   }),
 });
 
-// const validateCardDelete = celebrate({
-//   body: Joi.object().keys({
-//     name: Joi.string().min(2).max(30),
-//     link: Joi.string().custom(linkValidation),
-//   }),
-// });
-
 module.exports = {
   validateUser,
   validateLogin,
@@ -78,5 +51,4 @@ module.exports = {
   validateUserUpdate,
   validateUserAvatar,
   validateCard,
-  // validateCardDelete,
 };

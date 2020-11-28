@@ -21,14 +21,6 @@ const getUserById = (req, res, next) => User.findById(req.params._id)
   .then((user) => res.send({ data: user }))
   .catch(next);
 
-// const getUserByToken = (req, res, next) => {
-//   console.log(req.headers._id);
-//   User.findById(req.headers._id)
-//     .orFail(() => new NotFoundError('Такого пользователя не существует'))
-//     .then((user) => res.send({ data: user }))
-//     .catch(next);
-// };
-
 const getUserByToken = (req, res, next) => {
   const token = req.headers.authorization.replace('Bearer ', '');
 
