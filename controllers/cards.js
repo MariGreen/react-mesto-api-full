@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
-const ForbiddenError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 const getAllCards = (req, res, next) => Card.find({})
   .populate(['owner', 'likes'])

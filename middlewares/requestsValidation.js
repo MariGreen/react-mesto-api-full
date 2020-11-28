@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 const { celebrate, Joi } = require('celebrate');
 
 const validateUser = celebrate({
@@ -24,6 +25,12 @@ const validateId = celebrate({
   }),
 });
 
+const validateCardId = celebrate({
+  body: Joi.object().keys({
+    _id: Joi.string().hex().length(24),
+  }),
+});
+
 const validateUserUpdate = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
@@ -33,14 +40,14 @@ const validateUserUpdate = celebrate({
 
 const validateUserAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().regex(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/).required(),
+    avatar: Joi.string().regex(/^(https?:\/\/)?(w{3}\.)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?\#?$/).required(),
   }),
 });
 
 const validateCard = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
-    link: Joi.string().regex(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/).required(),
+    link: Joi.string().regex(/^(https?:\/\/)?(w{3}\.)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?\#?$/).required(),
   }),
 });
 
@@ -51,4 +58,5 @@ module.exports = {
   validateUserUpdate,
   validateUserAvatar,
   validateCard,
+  validateCardId,
 };

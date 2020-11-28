@@ -3,7 +3,7 @@
 Пожалуйста, прикрепите в это описание ссылку на репозиторий с готовым React-приложением, использующим этот API и ссылку на сайт, размещенный на Яндекс.Облаке.
 
 # сайт
-www.mgreen.students.nomoreparties.space
+https://www.mgreen.students.nomoreparties.space
 
 # фронт
 

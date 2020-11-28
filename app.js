@@ -23,7 +23,7 @@ app.use(requestLogger);
 const cardRouter = require('./routes/cards').router;
 const userRouter = require('./routes/users').router;
 
-const { PORT = 3001 } = process.env;
+const { PORT = 3000 } = process.env;
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
