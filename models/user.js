@@ -9,14 +9,15 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Имя нужно'],
     minlength: 2,
     maxlength: 30,
-    default: 'Господин Введи-Свое-Имя',
+    default: 'Жак-Ив Кусто',
+    // Господин Введи-Своё-Имя — это Пратчетт придумал)
   },
   about: {
     type: String,
     required: [true, 'Поле не должно быть пустым'],
     minlength: 2,
     maxlength: 30,
-    default: 'Пара слов о себе',
+    default: 'Исследователь',
   },
   avatar: {
     type: String,
@@ -29,7 +30,7 @@ const userSchema = new mongoose.Schema({
       },
       message: 'Ссылка не валидна',
     },
-    default: 'https://i.pinimg.com/736x/9c/55/52/9c555272afa158796052ed1c78e68e95.jpg',
+    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
   email: {
     type: String,
