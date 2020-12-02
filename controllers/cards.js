@@ -32,7 +32,7 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  Card.findById(req.body).populate(['owner', 'likes'])
+  Card.findById(req.params._id).populate(['owner', 'likes'])
     .orFail(new Error('NoCard'))
     .catch((err) => {
       if (err.message === 'NoCard') {
